@@ -37,6 +37,13 @@ stages:
           - publish: $(Build.ArtifactStagingDirectory)
             artifact: dist
             displayName: publish build artifact
+          - script: echo $(Build.ArtifactStagingDirectory)
+            displayName: Build_ArtifactStagingDirectory
+          - script: echo $(Pipeline.Workspace)
+            displayName: Bpipeline_Directory
+          - script: echo $(Pipeline.ArtifactStagingDirectory)
+            displayName: pipeline_ArtifactStagingDirectory
+
   - stage: Deploypackage
     displayName: Deploy to VM
     jobs:
@@ -50,5 +57,5 @@ stages:
               steps:
                 - download: current
                   displayName: download build artifact
-                  artifact: build
+                  artifact: dist
                 - bash: ls $(Pipeline.Workspace)/dist/dist/
