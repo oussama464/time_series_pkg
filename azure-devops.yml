@@ -1,48 +1,54 @@
 trigger:
   - master
 
-pool:
-  vmImage: "ubuntu-latest"
-jobs:
-  - job: setup_env_and_depencencies
-    strategy:
-      matrix:
-        python38:
-          python.version: "3.8"
-    steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: "$(python.version)"
-        displayName: "use Python $(python.version)"
-      - script: |
-          python -m pip install --upgrade pip 
-          pip install virtualenv 
-          virtualenv .venv
+stages:
+  - stage: Build
+    jobs:
+      - job: setup_env_and_depencencies
+        strategy:
+          matrix:
+            python38:
+              python.version: "3.8"
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "$(python.version)"
+            displayName: "use Python $(python.version)"
+          - script: |
+              python -m pip install --upgrade pip 
+              pip install virtualenv 
+              virtualenv .venv
 
-        displayName: "upgrade pip and activate venv"
-      - script: |
-          source .venv/bin/activate && pip install pytest build
-          pip install -r requirements.txt
-        displayName: installing deps
-      - script: |
-          source .venv/bin/activate && pytest
-        displayName: "testing the package"
-      - script: |
-          source .venv/bin/activate && python -m build .
-        displayName: Building time series package
-      - task: CopyFiles@2
-        inputs:
-          Contents: "dist/*"
-          TargetFolder: "$(build.artifactstagingdirectory)"
-      - publish: $(Build.ArtifactStagingDirectory)
-        artifact: dist
-        displayName: publish build artifact
-# - job: test_code
-#   dependsOn:
-#     - setup_env_and_depencencies
-#   condition: |
-#     eq(dependencies.setup_env_and_depencencies.result,'Succeeded')
-#   steps:
-#     - script: |
-#         source .venv/bin/activate && pytest
-#       displayName: "testing the package"
+            displayName: "upgrade pip and activate venv"
+          - script: |
+              source .venv/bin/activate && pip install pytest build
+              pip install -r requirements.txt
+            displayName: installing deps
+          - script: |
+              source .venv/bin/activate && pytest
+            displayName: "testing the package"
+          - script: |
+              source .venv/bin/activate && python -m build .
+            displayName: Building time series package
+          - task: CopyFiles@2
+            inputs:
+              Contents: "dist/*"
+              TargetFolder: "$(build.artifactstagingdirectory)"
+          - publish: $(Build.ArtifactStagingDirectory)
+            artifact: dist
+            displayName: publish build artifact
+  - stage: Deploypackage
+    displayName: Deploy to VM
+    jobs:
+      - deployment: Deployement
+        environment:
+          name: VM
+          resourceType: VirtualMachine
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  displayName: download build artifact
+                  artifact: build
+                - bash: ls $(Pipeline.Workspace)/dist/dist/
