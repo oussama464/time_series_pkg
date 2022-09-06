@@ -16,9 +16,9 @@ steps:
       python -m pip install --upgrade pip 
       pip install virtualenv 
       virtualenv .venv 
-      source .venv/bin/activate
-      pip install pytest build
+      source .venv/bin/activate && pip install pytest build
+
     displayName: "upgrade pip and activate venv"
   - script: |
-      pytest
+      source .venv/bin/activate && pytest
     displayName: "testing the package"
