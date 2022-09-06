@@ -27,4 +27,4 @@ jobs:
     steps:
       - script: |
         source .venv/bin/activate && pytest
-        displayName: "testing the package"
+      displayName: "testing the package"
