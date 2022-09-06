@@ -23,11 +23,12 @@ jobs:
       - script: |
           source .venv/bin/activate && pip install pytest build
           pip install -r requirements.txt
+        displayName: installing deps
       - script: |
           source .venv/bin/activate && pytest
         displayName: "testing the package"
       - script: |
-          python -m build .
+          source .venv/bin/activate && python -m build .
         displayName: Building time series package
       - task: CopyFiles@2
         inputs:
