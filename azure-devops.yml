@@ -26,5 +26,5 @@ jobs:
   - job: test_code
     steps:
       - script: |
-        source .venv/bin/activate && pytest
-      displayName: "testing the package"
+          source .venv/bin/activate && pytest
+        displayName: "testing the package"
