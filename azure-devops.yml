@@ -23,8 +23,25 @@ jobs:
       - script: |
           source .venv/bin/activate && pip install pytest build
           pip install -r requirements.txt
-  - job: test_code
-    steps:
       - script: |
           source .venv/bin/activate && pytest
         displayName: "testing the package"
+      - script: |
+          python -m build .
+        displayName: Building time series package
+      - task: CopyFiles@2
+        inputs:
+          Contents: "dist/*"
+          TargetFolder: "$(build.artifactstagingdirectory)"
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: dist
+        displayName: publish build artifact
+# - job: test_code
+#   dependsOn:
+#     - setup_env_and_depencencies
+#   condition: |
+#     eq(dependencies.setup_env_and_depencencies.result,'Succeeded')
+#   steps:
+#     - script: |
+#         source .venv/bin/activate && pytest
+#       displayName: "testing the package"
