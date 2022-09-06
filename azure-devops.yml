@@ -3,12 +3,12 @@ trigger:
 
 pool:
   vmImage: "ubuntu-latest"
-strategy:
-  matrix:
-    python38:
-      python.version: "3.8"
 jobs:
   - job: setup_env_and_depencencies
+    strategy:
+      matrix:
+        python38:
+          python.version: "3.8"
     steps:
       - task: UsePythonVersion@0
         inputs:
