@@ -7,18 +7,24 @@ strategy:
   matrix:
     python38:
       python.version: "3.8"
-steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: "$(python.version)"
-    displayName: "use Python $(python.version)"
-  - script: |
-      python -m pip install --upgrade pip 
-      pip install virtualenv 
-      virtualenv .venv 
-      source .venv/bin/activate && pip install pytest build
+jobs:
+  - job: setup_env_and_depencencies
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "$(python.version)"
+        displayName: "use Python $(python.version)"
+      - script: |
+          python -m pip install --upgrade pip 
+          pip install virtualenv 
+          virtualenv .venv
 
-    displayName: "upgrade pip and activate venv"
-  - script: |
-      source .venv/bin/activate && pytest
-    displayName: "testing the package"
+        displayName: "upgrade pip and activate venv"
+      - script: |
+          source .venv/bin/activate && pip install pytest build
+          pip install -r requirements.txt
+  - job: test_code
+    steps:
+      - script: |
+        source .venv/bin/activate && pytest
+        displayName: "testing the package"
