@@ -61,4 +61,3 @@ stages:
   #                 artifact: dist
   #               - bash: ls $(Pipeline.Workspace)/dist/dist/
   #source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) dist/*
-  # stage
