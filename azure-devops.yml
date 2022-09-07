@@ -21,7 +21,7 @@ stages:
 
             displayName: "upgrade pip and activate venv"
           - script: |
-              source .venv/bin/activate && pip install pytest build
+              source .venv/bin/activate && pip install pytest build twine
               pip install -r requirements.txt
             displayName: installing deps
           - script: |
@@ -37,25 +37,24 @@ stages:
           - publish: $(Build.ArtifactStagingDirectory)
             artifact: dist
             displayName: publish build artifact
-          - script: echo $(Build.ArtifactStagingDirectory)
-            displayName: Build_ArtifactStagingDirectory
-          - script: echo $(Pipeline.Workspace)
-            displayName: Bpipeline_Directory
-          - script: echo $(Pipeline.ArtifactStagingDirectory)
-            displayName: pipeline_ArtifactStagingDirectory
-
-  - stage: Deploypackage
-    displayName: Deploy to VM
-    jobs:
-      - deployment: Deployement
-        environment:
-          name: VM
-          resourceType: VirtualMachine
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - download: current
-                  displayName: download build artifact
-                  artifact: dist
-                - bash: ls $(Pipeline.Workspace)/dist/dist/
+          - task: TwineAuthenticate@1
+            inputs:
+              artifactFeed: sample-py-feed
+            displayName: tiwne auth
+          - script: |
+              source .venv/bin/activate && twine upload -r "sample-py-feed" --config-file $(PYPIRC_PATH) dist/dist/*
+  # - stage: Deploypackage
+  #   displayName: Deploy to VM
+  #   jobs:
+  #     - deployment: Deployement
+  #       environment:
+  #         name: VM
+  #         resourceType: VirtualMachine
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - download: current
+  #                 displayName: download build artifact
+  #                 artifact: dist
+  #               - bash: ls $(Pipeline.Workspace)/dist/dist/
