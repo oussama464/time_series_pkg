@@ -7,7 +7,7 @@ with open("README.md") as f:
 setup(
     name="TSIClient",
     packages=find_packages(),
-    version="3.0.0",
+    version="3.0.1",
     license="MIT",
     description="The TSIClient is a Python SDK .",
     long_description=long_description,
