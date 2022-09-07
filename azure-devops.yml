@@ -29,6 +29,7 @@ stages:
             displayName: "testing the package"
           - script: |
               source .venv/bin/activate && python -m build .
+              cd dist && touch .pypirc
             displayName: Building time series package
           - task: CopyFiles@2
             inputs:
@@ -42,7 +43,7 @@ stages:
               artifactFeed: raw_coding_example_feed
             displayName: tiwne auth
           - script: |
-              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" –config-file=”$(Build.DefinitionName)/dist/.pypirc” -r python-packages “$(Build.DefinitionName)/dist/*.whl” –skip-existing.
+              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(Build.DefinitionName)/dist/*
   # - stage: Deploypackage
   #   displayName: Deploy to VM
   #   jobs:
