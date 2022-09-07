@@ -41,10 +41,10 @@ stages:
             displayName: publish build artifact
           - task: TwineAuthenticate@1
             inputs:
-              artifactFeed: raw_coding_example_feed
+              artifactFeed: demofeed
             displayName: tiwne auth
           - script: |
-              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(System.DefaultWorkingDirectory)/dist/*
+              source .venv/bin/activate && twine upload -r "demofeed" --config-file $(PYPIRC_PATH) $(System.DefaultWorkingDirectory)/dist/*
   # - stage: Deploypackage
   #   displayName: Deploy to VM
   #   jobs:
