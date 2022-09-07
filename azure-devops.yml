@@ -22,7 +22,7 @@ stages:
 
             displayName: "upgrade pip and activate venv"
           - script: |
-              source .venv/bin/activate && pip install pytest build twine
+              source .venv/bin/activate && pip install pytest build 
               pip install -r requirements.txt
             displayName: installing deps
           - script: |
@@ -45,6 +45,31 @@ stages:
             displayName: tiwne auth
           - script: |
               source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(System.DefaultWorkingDirectory)/dist/*
+  - stage: PublishTimeSeriesPkg
+    jobs:
+      - job: publishpackage
+        strategy:
+          matrix:
+            python38:
+              python.version: "3.8"
+        steps:
+          - script: |
+              python -m pip install --upgrade pip
+              pip install virtualenv
+              virtualenv .venv
+              source .venv/bin/activate && pip install twine
+            displayName: perapare env install twine
+          - download: current
+            artifact: dist
+            displayName: download build artifacts
+          - task: TwineAuthenticate@1
+            inputs:
+              artifactFeed: raw_coding_example_feed
+            displayName: tiwne auth
+          - script: |
+              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/*
+            displayName: pub pkg with twine
+
   # - stage: Deploypackage
   #   displayName: Deploy to VM
   #   jobs:
