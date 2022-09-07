@@ -56,12 +56,16 @@ stages:
           - download: current
             artifact: dist
             displayName: download build artifacts
+          - script: |
+              echo ' linsting files in pipeline workspace'
+              ls $(Pipeline.Workspace)/dist/dist/*
+            displayName: listing files in pipeline_workspace_dist_dist
           - task: TwineAuthenticate@1
             inputs:
               artifactFeed: raw_coding_example_feed
             displayName: tiwne auth
           - script: |
-              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/*
+              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/dist/*
             displayName: pub pkg with twine
 
   # - stage: Deploypackage
