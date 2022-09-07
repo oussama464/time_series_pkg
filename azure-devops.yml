@@ -42,7 +42,7 @@ stages:
               artifactFeed: raw_coding_example_feed
             displayName: tiwne auth
           - script: |
-              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) dist/*
+              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" –config-file=”$(Build.DefinitionName)/dist/.pypirc” -r python-packages “$(Build.DefinitionName)/dist/*.whl” –skip-existing.
   # - stage: Deploypackage
   #   displayName: Deploy to VM
   #   jobs:
@@ -58,3 +58,4 @@ stages:
   #                 displayName: download build artifact
   #                 artifact: dist
   #               - bash: ls $(Pipeline.Workspace)/dist/dist/
+  #source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) dist/*
