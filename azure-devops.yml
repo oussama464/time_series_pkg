@@ -42,7 +42,7 @@ stages:
               artifactFeed: sample-py-feed
             displayName: tiwne auth
           - script: |
-              source .venv/bin/activate && twine upload -r "sample-py-feed" --config-file $(PYPIRC_PATH) dist/dist/*
+              source .venv/bin/activate && twine upload -r "sample-py-feed" --config-file $(PYPIRC_PATH) dist/*
   # - stage: Deploypackage
   #   displayName: Deploy to VM
   #   jobs:
