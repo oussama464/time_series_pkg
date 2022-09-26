@@ -1,4 +1,5 @@
 import os
+import sys
 from TSIClient.authorization.authorization_api import AuthorizationApi
 from TSIClient.common.common_funcs import CommonFuncs
 from TSIClient.environment.environment_api import EnvironmentApi
@@ -8,7 +9,7 @@ from TSIClient.query.query_api import QueryApi
 from TSIClient.types.types_api import TypesApi
 
 
-class TSIClient():
+class TSIClient:
     """TSIClient. Holds methods to interact with an Azure TSI environment.
 
     This class can be used to retrieve time series data from Azure TSI. Data
@@ -49,7 +50,7 @@ class TSIClient():
         * ``TSICLIENT_CLIENT_SECRET``
         * ``TSICLIENT_TENANT_ID``
         * ``TSI_API_VERSION``
-        
+
         Now you can instantiate the TSIClient without passing any arguments:
 
             >>> from TSIClient import TSIClient as tsi
@@ -57,19 +58,35 @@ class TSIClient():
     """
 
     def __init__(
-            self,
-            environment=None,
-            client_id=None,
-            client_secret=None,
-            applicationName=None,
-            tenant_id=None,
-            api_version=None
-        ):
-        self._applicationName = applicationName if applicationName is not None else os.getenv("TSICLIENT_APPLICATION_NAME")
-        self._environmentName = environment if environment is not None else os.getenv("TSICLIENT_ENVIRONMENT_NAME")
-        self._client_id = client_id if client_id is not None else os.getenv("TSICLIENT_CLIENT_ID")
-        self._client_secret = client_secret if client_secret is not None else os.getenv("TSICLIENT_CLIENT_SECRET")
-        self._tenant_id = tenant_id if tenant_id is not None else os.getenv("TSICLIENT_TENANT_ID")
+        self,
+        environment=None,
+        client_id=None,
+        client_secret=None,
+        applicationName=None,
+        tenant_id=None,
+        api_version=None,
+    ):
+        self._applicationName = (
+            applicationName
+            if applicationName is not None
+            else os.getenv("TSICLIENT_APPLICATION_NAME")
+        )
+        self._environmentName = (
+            environment
+            if environment is not None
+            else os.getenv("TSICLIENT_ENVIRONMENT_NAME")
+        )
+        self._client_id = (
+            client_id if client_id is not None else os.getenv("TSICLIENT_CLIENT_ID")
+        )
+        self._client_secret = (
+            client_secret
+            if client_secret is not None
+            else os.getenv("TSICLIENT_CLIENT_SECRET")
+        )
+        self._tenant_id = (
+            tenant_id if tenant_id is not None else os.getenv("TSICLIENT_TENANT_ID")
+        )
 
         allowed_api_versions = ["2020-07-31", "2018-11-01-preview"]
         if api_version in allowed_api_versions:
@@ -81,53 +98,63 @@ class TSIClient():
             self._apiVersion = "2020-07-31"
 
         self.authorization = AuthorizationApi(
-            client_id = self._client_id,
-            client_secret = self._client_secret,
-            tenant_id = self._tenant_id,
-            api_version = self._apiVersion
+            client_id=self._client_id,
+            client_secret=self._client_secret,
+            tenant_id=self._tenant_id,
+            api_version=self._apiVersion,
         )
 
-
-        self.common_funcs = CommonFuncs(
-            api_version = self._apiVersion
-        )
+        self.common_funcs = CommonFuncs(api_version=self._apiVersion)
 
         self.environment = EnvironmentApi(
-            application_name = self._applicationName,
-            environment = self._environmentName,
-            authorization_api = self.authorization,
-            common_funcs = self.common_funcs
+            application_name=self._applicationName,
+            environment=self._environmentName,
+            authorization_api=self.authorization,
+            common_funcs=self.common_funcs,
         )
         self._environmentId = self.environment.getEnvironmentId()
 
         self.instances = InstancesApi(
-            application_name = self._applicationName,
-            environment_id = self._environmentId,
-            authorization_api = self.authorization,
-            common_funcs = self.common_funcs
+            application_name=self._applicationName,
+            environment_id=self._environmentId,
+            authorization_api=self.authorization,
+            common_funcs=self.common_funcs,
         )
         self.instancesRetrieved = self.instances.getInstances()
 
         self.types = TypesApi(
-            application_name = self._applicationName,
-            environment_id = self._environmentId,
-            authorization_api = self.authorization,
-            common_funcs = self.common_funcs,
-            instances = self.instancesRetrieved
+            application_name=self._applicationName,
+            environment_id=self._environmentId,
+            authorization_api=self.authorization,
+            common_funcs=self.common_funcs,
+            instances=self.instancesRetrieved,
         )
 
         self.query = QueryApi(
-            application_name = self._applicationName,
-            environment_id = self._environmentId,
-            authorization_api = self.authorization,
-            common_funcs = self.common_funcs,
-            typesApi = self.types,
-            instances = self.instancesRetrieved,
+            application_name=self._applicationName,
+            environment_id=self._environmentId,
+            authorization_api=self.authorization,
+            common_funcs=self.common_funcs,
+            typesApi=self.types,
+            instances=self.instancesRetrieved,
         )
 
         self.hierarchies = HierarchiesApi(
-            application_name = self._applicationName,
-            environment_id = self._environmentId,
-            authorization_api = self.authorization,
-            common_funcs = self.common_funcs
+            application_name=self._applicationName,
+            environment_id=self._environmentId,
+            authorization_api=self.authorization,
+            common_funcs=self.common_funcs,
         )
+
+
+def use_args(arg1, arg2):
+    print(f"{arg1} {arg2}")
+
+
+def launch():
+    arg1, arg2 = sys.argv[1], sys.argv[2]
+    use_args(arg1, arg2)
+
+
+if __name__ == "__main__":
+    launch()

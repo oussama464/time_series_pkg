@@ -1,3 +1,4 @@
+from importlib.metadata import entry_points
 from setuptools import setup, find_packages
 
 
@@ -6,7 +7,10 @@ with open("README.md") as f:
 
 setup(
     name="TSIClient",
-    packages=find_packages(),
+    packages=find_packages(exclude=("test*", "testing*")),
+    entry_points={"console_scripts": ["hello-cli = TSIClient.TSIClient:launch"]},
+    # package_dir={"": "TSIClient"},
+    include_package_data=True,
     version="3.0.1",
     license="MIT",
     description="The TSIClient is a Python SDK .",
