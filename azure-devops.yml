@@ -1,5 +1,9 @@
 trigger:
   - main
+parameters:
+  - name: PkgDir
+    type: string
+    default: TSIClient
 pool:
   vmImage: "ubuntu-latest"
 stages:
@@ -30,7 +34,7 @@ stages:
               source .venv/bin/activate
               pip install pytest pytest-azurepipelines
               pip install pytest-cov
-              pytest --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml
+              pytest --doctest-modules --junitxml=junit/test-results.xml --cov=${{ parameters.PkgDir }} --cov-report=xml
             displayName: "pytest"
           - task: PublishTestResults@2
             condition: succeededOrFailed()
