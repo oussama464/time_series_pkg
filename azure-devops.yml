@@ -34,7 +34,7 @@ stages:
               source .venv/bin/activate
               pip install pytest pytest-azurepipelines
               pip install pytest-cov
-              pytest --doctest-modules --junitxml=junit/test-results.xml --cov=./${{ parameters.PkgDir }} --cov-report=xml
+              pytest tests/ --doctest-modules --junitxml=junit/test-results.xml --cov=./${{ parameters.PkgDir }} --cov-report=xml
             displayName: "pytest"
           - task: PublishTestResults@2
             condition: succeededOrFailed()
