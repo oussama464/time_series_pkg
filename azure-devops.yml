@@ -1,5 +1,5 @@
 trigger:
-  - none
+  - main
 pool:
   vmImage: "ubuntu-latest"
 stages:
@@ -22,12 +22,25 @@ stages:
 
             displayName: "upgrade pip and activate venv"
           - script: |
-              source .venv/bin/activate && pip install pytest build 
+              source .venv/bin/activate 
+              pip install build 
               pip install -r requirements.txt
             displayName: installing deps
           - script: |
-              source .venv/bin/activate && pytest
-            displayName: "testing the package"
+              source .venv/bin/activate
+              pip install pytest pytest-azurepipelines
+              pip install pytest-cov
+              pytest --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml
+            displayName: "pytest"
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: "**/test-*.xml"
+              testRunTitle: "Publish test results for Python $(python.version)"
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: "$(System.DefaultWorkingDirectory)/**/coverage.xml"
           - script: |
               source .venv/bin/activate && python -m build .
               cd dist && touch .pypirc
@@ -39,34 +52,34 @@ stages:
           - publish: $(Build.ArtifactStagingDirectory)
             artifact: dist
             displayName: publish build artifact
-  - stage: PublishTimeSeriesPkg
-    jobs:
-      - job: publishpackage
-        strategy:
-          matrix:
-            python38:
-              python.version: "3.8"
-        steps:
-          - script: |
-              python -m pip install --upgrade pip
-              pip install virtualenv
-              virtualenv .venv
-              source .venv/bin/activate && pip install twine
-            displayName: perapare env install twine
-          - download: current
-            artifact: dist
-            displayName: download build artifacts
-          - script: |
-              echo ' linsting files in pipeline workspace'
-              ls $(Pipeline.Workspace)/dist/dist/*
-            displayName: listing files in pipeline_workspace_dist_dist
-          - task: TwineAuthenticate@1
-            inputs:
-              artifactFeed: raw_coding_example_feed
-            displayName: tiwne auth
-          - script: |
-              source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/dist/*
-            displayName: pub pkg with twine
+  # - stage: PublishTimeSeriesPkg
+  #   jobs:
+  #     - job: publishpackage
+  #       strategy:
+  #         matrix:
+  #           python38:
+  #             python.version: "3.8"
+  #       steps:
+  #         - script: |
+  #             python -m pip install --upgrade pip
+  #             pip install virtualenv
+  #             virtualenv .venv
+  #             source .venv/bin/activate && pip install twine
+  #           displayName: perapare env install twine
+  #         - download: current
+  #           artifact: dist
+  #           displayName: download build artifacts
+  #         - script: |
+  #             echo ' linsting files in pipeline workspace'
+  #             ls $(Pipeline.Workspace)/dist/dist/*
+  #           displayName: listing files in pipeline_workspace_dist_dist
+  #         - task: TwineAuthenticate@1
+  #           inputs:
+  #             artifactFeed: raw_coding_example_feed
+  #           displayName: tiwne auth
+  #         - script: |
+  #             source .venv/bin/activate && twine upload -r "raw_coding_example_feed" --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/dist/*
+  #           displayName: pub pkg with twine
 
   # - stage: Deploypackage
   #   displayName: Deploy to VM
